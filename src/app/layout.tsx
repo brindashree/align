@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { QueryProvider } from "@/components/query-provider";
 import "./globals.css";
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -20,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn(jakartaSans.className, "antialiased min-h-screen")}>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
