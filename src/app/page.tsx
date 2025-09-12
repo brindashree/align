@@ -1,17 +1,25 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useCurrent } from "@/features/auth/api/use-current";
+import { useLogout } from "@/features/auth/api/use-logout";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const router = useRouter();
+  const { data, isLoading } = useCurrent();
+  const { mutate: logout } = useLogout();
+
+  useEffect(() => {
+    if (!data && !isLoading) {
+      router.push("/sign-in");
+    }
+  }, [data]);
   return (
     <div className="flex gap-4 m-2">
-      <h1 className="text-3xl font-bold underline">Hello, Next.js!</h1>
-      <Button variant={"destructive"}>Click Me</Button>
-      <Button variant={"secondary"}>Click Me</Button>
-      <Button variant={"muted"}>Click Me</Button>
-      <Button variant={"teritary"}>Click Me</Button>
-      <Button disabled>Click Me</Button>
-      <Button>Click Me</Button>
-      <Input placeholder="Type here..." />
+      Only visible to authorised user
+      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 }
