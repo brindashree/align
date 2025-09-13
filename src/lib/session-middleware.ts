@@ -9,10 +9,12 @@ import {
   Databases,
   Models,
   Storage,
+  TablesDB,
   type Account as AccountType,
   type Databases as DatabasesType,
   type Storage as StorageType,
   type Users as UsersType,
+  type TablesDB as TablesDBType,
 } from "node-appwrite";
 
 type AdditionalContext = {
@@ -22,6 +24,7 @@ type AdditionalContext = {
     storage: StorageType;
     users: UsersType;
     user: Models.User<Models.Preferences>;
+    tablesdb: TablesDBType;
   };
 };
 
@@ -40,6 +43,7 @@ export const sessionMiddleware = createMiddleware<AdditionalContext>(
     const account = new Account(client);
     const databases = new Databases(client);
     const storage = new Storage(client);
+    const tablesdb = new TablesDB(client);
 
     const user = await account.get();
 
@@ -47,6 +51,7 @@ export const sessionMiddleware = createMiddleware<AdditionalContext>(
     c.set("databases", databases);
     c.set("storage", storage);
     c.set("user", user);
+    c.set("tablesdb", tablesdb);
 
     return next();
   }
