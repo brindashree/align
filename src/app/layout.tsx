@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { QueryProvider } from "@/components/query-provider";
 import "./globals.css";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "@/components/ui/sonner";
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -24,7 +25,7 @@ export default function RootLayout({
       <body className={cn(jakartaSans.className, "antialiased min-h-screen")}>
         <QueryProvider>
           <Toaster />
-          {children}
+          <NuqsAdapter>{children}</NuqsAdapter>
         </QueryProvider>
       </body>
     </html>

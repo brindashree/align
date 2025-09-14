@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useCreateWorkspace } from "../api/use-create-workspace";
 import { createWorkspacesSchema } from "../schemas";
+import { useRouter } from "next/navigation";
 
 interface CreateWorkspaceFormProps {
   onCancel?: () => void;
@@ -29,6 +30,7 @@ interface CreateWorkspaceFormProps {
 
 export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
   const { mutate, isPending } = useCreateWorkspace();
+  const router = useRouter();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -53,8 +55,9 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
     mutate(
       { form: finalValues },
       {
-        onSuccess: () => {
+        onSuccess: ({ data }) => {
           form.reset();
+          router.push(`/workspaces/${data.$id}`);
         },
       }
     );
