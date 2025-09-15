@@ -1,28 +1,18 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { Account, Client, Query, TablesDB } from "node-appwrite";
-import { AUTH_COOKIE } from "../auth/constants";
 import { DATABASE_ID, MEMBERS_ID, WORKSPACES_ID } from "@/config";
+import { createSessionClient } from "@/lib/appwrite";
+import { Query } from "node-appwrite";
 import { getMember } from "../members/utils";
 import { Workspace } from "./types";
 
 export const getWorkspaces = async () => {
   try {
-    const client = new Client()
-      .setEndpoint(process.env.APPWRITE_ENDPOINT!)
-      .setProject(process.env.APPWRITE_PROJECT!);
+    const { account, tablesDB } = await createSessionClient();
 
-    const session = await cookies().get(AUTH_COOKIE);
-
-    if (!session) return { rows: [], total: 0 };
-    client.setSession(session.value);
-
-    const tablesdb = new TablesDB(client);
-    const account = new Account(client);
     const user = await account.get();
 
-    const members = await tablesdb.listRows({
+    const members = await tablesDB.listRows({
       databaseId: DATABASE_ID,
       tableId: MEMBERS_ID,
       queries: [Query.equal("userId", user?.$id)],
@@ -33,7 +23,7 @@ export const getWorkspaces = async () => {
     }
     const workspacesIds = members.rows.map((member) => member.workspaceId);
 
-    const workspaces = await tablesdb.listRows({
+    const workspaces = await tablesDB.listRows({
       databaseId: DATABASE_ID,
       tableId: WORKSPACES_ID,
       queries: [
@@ -54,21 +44,11 @@ interface GetWorkspaceProps {
 
 export const getWorkspace = async ({ workspaceId }: GetWorkspaceProps) => {
   try {
-    const client = new Client()
-      .setEndpoint(process.env.APPWRITE_ENDPOINT!)
-      .setProject(process.env.APPWRITE_PROJECT!);
-
-    const session = await cookies().get(AUTH_COOKIE);
-
-    if (!session) return null;
-    client.setSession(session.value);
-
-    const tablesdb = new TablesDB(client);
-    const account = new Account(client);
+    const { account, tablesDB } = await createSessionClient();
     const user = await account.get();
 
     const member = await getMember({
-      tablesDB: tablesdb,
+      tablesDB: tablesDB,
       workspaceId,
       userId: user?.$id,
     });
@@ -77,7 +57,7 @@ export const getWorkspace = async ({ workspaceId }: GetWorkspaceProps) => {
       return null;
     }
 
-    const workspace = await tablesdb.getRow<Workspace>({
+    const workspace = await tablesDB.getRow<Workspace>({
       databaseId: DATABASE_ID,
       tableId: WORKSPACES_ID,
       rowId: workspaceId,

@@ -20,8 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useCreateWorkspace } from "../api/use-create-workspace";
-import { createWorkspacesSchema, updateWorkspacesSchema } from "../schemas";
+import { updateWorkspacesSchema } from "../schemas";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Workspace } from "../types";
