@@ -146,6 +146,26 @@ const app = new Hono()
       });
       return c.json({ data: workspace });
     }
-  );
+  )
+  .delete("/:workspaceId", sessionMiddleware, async (c) => {
+    const tablesdb = c.get("tablesdb");
+    const user = c.get("user");
+    const { workspaceId } = c.req.param();
+    const member = await getMember({
+      tablesDB: tablesdb,
+      workspaceId,
+      userId: user?.$id,
+    });
+    if (!member || member.role !== MemberRole.ADMIN) {
+      return c.json({ error: "Unauthorized" }, 400);
+    }
+    await tablesdb.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: WORKSPACES_ID,
+      rowId: workspaceId,
+    });
+
+    return c.json({ data: { $id: workspaceId } });
+  });
 
 export default app;
