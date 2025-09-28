@@ -7,35 +7,30 @@ import { getMember } from "../members/utils";
 import { Workspace } from "./types";
 
 export const getWorkspaces = async () => {
-  try {
-    const { account, tablesDB } = await createSessionClient();
+  const { account, tablesDB } = await createSessionClient();
 
-    const user = await account.get();
+  const user = await account.get();
 
-    const members = await tablesDB.listRows({
-      databaseId: DATABASE_ID,
-      tableId: MEMBERS_ID,
-      queries: [Query.equal("userId", user?.$id)],
-    });
+  const members = await tablesDB.listRows({
+    databaseId: DATABASE_ID,
+    tableId: MEMBERS_ID,
+    queries: [Query.equal("userId", user?.$id)],
+  });
 
-    if (members.total === 0) {
-      return { rows: [], total: 0 };
-    }
-    const workspacesIds = members.rows.map((member) => member.workspaceId);
-
-    const workspaces = await tablesDB.listRows({
-      databaseId: DATABASE_ID,
-      tableId: WORKSPACES_ID,
-      queries: [
-        Query.orderDesc("$createdAt"),
-        Query.contains("$id", workspacesIds),
-      ],
-    });
-    return workspaces;
-  } catch (err) {
-    console.error("Error in getCurrent:", err);
+  if (members.total === 0) {
     return { rows: [], total: 0 };
   }
+  const workspacesIds = members.rows.map((member) => member.workspaceId);
+
+  const workspaces = await tablesDB.listRows({
+    databaseId: DATABASE_ID,
+    tableId: WORKSPACES_ID,
+    queries: [
+      Query.orderDesc("$createdAt"),
+      Query.contains("$id", workspacesIds),
+    ],
+  });
+  return workspaces;
 };
 
 interface GetWorkspaceProps {
@@ -43,31 +38,26 @@ interface GetWorkspaceProps {
 }
 
 export const getWorkspace = async ({ workspaceId }: GetWorkspaceProps) => {
-  try {
-    const { account, tablesDB } = await createSessionClient();
-    const user = await account.get();
+  const { account, tablesDB } = await createSessionClient();
+  const user = await account.get();
 
-    const member = await getMember({
-      tablesDB: tablesDB,
-      workspaceId,
-      userId: user?.$id,
-    });
+  const member = await getMember({
+    tablesDB: tablesDB,
+    workspaceId,
+    userId: user?.$id,
+  });
 
-    if (!member) {
-      return null;
-    }
-
-    const workspace = await tablesDB.getRow<Workspace>({
-      databaseId: DATABASE_ID,
-      tableId: WORKSPACES_ID,
-      rowId: workspaceId,
-    });
-
-    return workspace;
-  } catch (err) {
-    console.error(err);
-    return null;
+  if (!member) {
+    throw new Error("Unauthorized");
   }
+
+  const workspace = await tablesDB.getRow<Workspace>({
+    databaseId: DATABASE_ID,
+    tableId: WORKSPACES_ID,
+    rowId: workspaceId,
+  });
+
+  return workspace;
 };
 
 interface GetWorkspaceInfoProps {
@@ -77,20 +67,15 @@ interface GetWorkspaceInfoProps {
 export const getWorkspaceInfo = async ({
   workspaceId,
 }: GetWorkspaceInfoProps) => {
-  try {
-    const { account, tablesDB } = await createSessionClient();
+  const { tablesDB } = await createSessionClient();
 
-    const workspace = await tablesDB.getRow<Workspace>({
-      databaseId: DATABASE_ID,
-      tableId: WORKSPACES_ID,
-      rowId: workspaceId,
-    });
+  const workspace = await tablesDB.getRow<Workspace>({
+    databaseId: DATABASE_ID,
+    tableId: WORKSPACES_ID,
+    rowId: workspaceId,
+  });
 
-    return {
-      name: workspace.name,
-    };
-  } catch (err) {
-    console.error(err);
-    return null;
-  }
+  return {
+    name: workspace.name,
+  };
 };

@@ -37,7 +37,7 @@ export const Projects = () => {
                 isActive && "bg-white shadow-sm hover:opacity-100 text-primary"
               )}
             >
-              <ProjectAvatar image={project.imageUrl} name={project.name} />
+              <ProjectAvatar image={project.image} name={project.name} />
               <span className="truncate">{project.name}</span>
             </div>
           </Link>
