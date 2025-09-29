@@ -5,7 +5,7 @@ import { zValidator } from "@hono/zod-validator";
 import { getMember } from "@/features/members/utils";
 import { DATABASE_ID, MEMBERS_ID, PROJECTS_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { TaskStatus } from "../types";
+import { Task, TaskStatus } from "../types";
 import z from "zod";
 import { createAdminClient } from "@/lib/appwrite";
 
@@ -60,7 +60,7 @@ const app = new Hono()
       if (search) {
         query.push(Query.equal("name", search));
       }
-      const tasks = await tablesDB.listRows({
+      const tasks = await tablesDB.listRows<Task>({
         tableId: TASKS_ID,
         databaseId: DATABASE_ID,
         queries: query,
