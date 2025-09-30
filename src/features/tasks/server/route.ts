@@ -6,10 +6,36 @@ import { getMember } from "@/features/members/utils";
 import { DATABASE_ID, MEMBERS_ID, PROJECTS_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskStatus } from "../types";
-import z from "zod";
+import z, { email } from "zod";
 import { createAdminClient } from "@/lib/appwrite";
+import { Project } from "@/features/projects/types";
 
 const app = new Hono()
+  .delete("/:taskId", sessionMiddleware, async (c) => {
+    const tablesdb = c.get("tablesdb");
+    const user = c.get("user");
+    const { taskId } = c.req.param();
+    const existingTask = await tablesdb.getRow<Task>({
+      databaseId: DATABASE_ID,
+      tableId: TASKS_ID,
+      rowId: taskId,
+    });
+    const member = await getMember({
+      tablesDB: tablesdb,
+      workspaceId: existingTask.workspaceId,
+      userId: user?.$id,
+    });
+    if (!member) {
+      return c.json({ error: "Unauthorized" }, 400);
+    }
+    await tablesdb.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: TASKS_ID,
+      rowId: taskId,
+    });
+
+    return c.json({ data: { $id: taskId } });
+  })
   .get(
     "/",
     zValidator(
@@ -112,6 +138,51 @@ const app = new Hono()
       });
     }
   )
+  .get("/:taskId", sessionMiddleware, async (c) => {
+    const { users } = await createAdminClient();
+    const tablesDB = c.get("tablesdb");
+    const currentUser = c.get("user");
+    const { taskId } = c.req.param();
+
+    const task = await tablesDB.getRow<Task>({
+      tableId: TASKS_ID,
+      databaseId: DATABASE_ID,
+      rowId: taskId,
+    });
+    console.log({ task });
+    const currentMember = getMember({
+      tablesDB,
+      workspaceId: task.workspaceId,
+      userId: currentUser.$id,
+    });
+    if (!currentMember) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+    const project = await tablesDB.getRow<Project>({
+      databaseId: DATABASE_ID,
+      tableId: PROJECTS_ID,
+      rowId: task.projectId,
+    });
+    const member = await tablesDB.getRow({
+      databaseId: DATABASE_ID,
+      tableId: MEMBERS_ID,
+      rowId: task.assigneeId,
+    });
+    const user = await users.get(member.userId);
+    const assignee = {
+      ...member,
+      name: user.name,
+      email: user.email,
+    };
+
+    return c.json({
+      data: {
+        ...task,
+        project,
+        assignee,
+      },
+    });
+  })
   .post(
     "/",
     zValidator("json", createTaskSchema),
@@ -172,6 +243,55 @@ const app = new Hono()
 
       return c.json({ data: task });
     }
-  );
+  )
+  .patch(
+    "/:taskId",
+    zValidator("json", createTaskSchema.partial()),
+    sessionMiddleware,
+    async (c) => {
+      const tablesDB = c.get("tablesdb");
 
+      const user = c.get("user");
+      const { taskId } = c.req.param();
+      const {
+        name,
+        description,
+        dueDate,
+        status,
+        workspaceId,
+        projectId,
+        assigneeId,
+      } = c.req.valid("json");
+      const existingTask = await tablesDB.getRow<Task>({
+        databaseId: DATABASE_ID,
+        tableId: TASKS_ID,
+        rowId: taskId,
+      });
+
+      const member = getMember({
+        tablesDB,
+        workspaceId: existingTask.workspaceId,
+        userId: user.$id,
+      });
+      if (!member) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      const task = await tablesDB.updateRow({
+        databaseId: DATABASE_ID,
+        tableId: TASKS_ID,
+        rowId: existingTask.$id,
+        data: {
+          name,
+          status,
+          description,
+          projectId,
+          dueDate,
+          assigneeId,
+        },
+      });
+
+      return c.json({ data: task });
+    }
+  );
 export default app;

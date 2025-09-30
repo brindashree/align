@@ -2,9 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import z from "zod";
-
 import { DottedSeparator } from "@/components/dotted-separator";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,11 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { createTaskSchema } from "../schemas";
 import { cn } from "@/lib/utils";
-import { useCreateTask } from "../api/use-create-task";
-import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { DatePicker } from "@/components/date-picker";
 import {
   Select,
@@ -30,11 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MemberAvatar } from "@/features/members/components/member-avatar";
-import { TaskStatus } from "../types";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
+import { MemberAvatar } from "@/features/members/components/member-avatar";
+import { Task, TaskStatus } from "../types";
+import { createTaskSchema } from "../schemas";
+import { useUpdateTask } from "../api/use-update-task";
 
-interface CreateProjectProps {
+interface EditProjectProps {
   onCancel?: () => void;
   projectOptions: {
     id: string;
@@ -45,26 +41,30 @@ interface CreateProjectProps {
     id: string;
     name: string;
   }[];
+  initialValues: Task;
 }
 
-export const CreateTaskForm = ({
+export const EditTaskForm = ({
   onCancel,
   memberOptions,
   projectOptions,
-}: CreateProjectProps) => {
-  const workspaceId = useWorkspaceId();
-  const { mutate, isPending } = useCreateTask();
+  initialValues,
+}: EditProjectProps) => {
+  const { mutate, isPending } = useUpdateTask();
 
   const form = useForm({
-    resolver: zodResolver(createTaskSchema),
+    resolver: zodResolver(createTaskSchema.omit({ description: true })),
     defaultValues: {
-      workspaceId,
+      ...initialValues,
+      dueDate: initialValues.dueDate
+        ? new Date(initialValues.dueDate)
+        : undefined,
     },
   });
 
   const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
     mutate(
-      { json: { ...values, workspaceId } },
+      { json: { ...values }, param: { taskId: initialValues.$id } },
       {
         onSuccess: () => {
           form.reset();
@@ -76,7 +76,7 @@ export const CreateTaskForm = ({
   return (
     <Card className="w-full h-full border-none shadow-none">
       <CardHeader className="flex p-7">
-        <CardTitle className="text-xl font-bold">Create a new task</CardTitle>
+        <CardTitle className="text-xl font-bold"> Edit a task </CardTitle>
       </CardHeader>
       <div className="px-7">
         <DottedSeparator />
@@ -225,7 +225,7 @@ export const CreateTaskForm = ({
                 Cancel
               </Button>
               <Button type="submit" size={"lg"} disabled={isPending}>
-                Create task
+                Save Changes
               </Button>
             </div>
           </form>
