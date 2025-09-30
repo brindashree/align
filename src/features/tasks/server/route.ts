@@ -253,15 +253,8 @@ const app = new Hono()
 
       const user = c.get("user");
       const { taskId } = c.req.param();
-      const {
-        name,
-        description,
-        dueDate,
-        status,
-        workspaceId,
-        projectId,
-        assigneeId,
-      } = c.req.valid("json");
+      const { name, description, dueDate, status, projectId, assigneeId } =
+        c.req.valid("json");
       const existingTask = await tablesDB.getRow<Task>({
         databaseId: DATABASE_ID,
         tableId: TASKS_ID,

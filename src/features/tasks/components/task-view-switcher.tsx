@@ -15,6 +15,7 @@ import { columns } from "./columns";
 import { DataKanban } from "./data-kanban";
 import { TaskStatus } from "../types";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
+import { DataCalendar } from "./data-calendar";
 
 export const TaskViewSwitcher = () => {
   const workspaceId = useWorkspaceId();
@@ -36,7 +37,7 @@ export const TaskViewSwitcher = () => {
     (tasks: { $id: string; position: number; status: TaskStatus }[]) => {
       mutate({ json: { tasks } });
     },
-    []
+    [mutate]
   );
 
   return (
@@ -72,13 +73,15 @@ export const TaskViewSwitcher = () => {
           </div>
         ) : (
           <>
-            <TabsContent value="table">
+            <TabsContent value="table" className="mt-0">
               <DataTable columns={columns} data={tasks?.rows ?? []} />
             </TabsContent>
-            <TabsContent value="kanban">
+            <TabsContent value="kanban" className="mt-0">
               <DataKanban data={tasks?.rows ?? []} onChange={onKanbanChange} />
             </TabsContent>
-            <TabsContent value="calendar">Data calendar</TabsContent>
+            <TabsContent value="calendar" className="mt-0 h-full pb-4">
+              <DataCalendar data={tasks?.rows ?? []} />
+            </TabsContent>
           </>
         )}
       </div>

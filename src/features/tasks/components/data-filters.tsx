@@ -9,7 +9,7 @@ import {
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetProjects } from "@/features/projects/api/use-get-projects";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
-import { FolderIcon, ListChecks, ListChecksIcon, UserIcon } from "lucide-react";
+import { FolderIcon, ListChecksIcon, UserIcon } from "lucide-react";
 import React from "react";
 import { TaskStatus } from "../types";
 import { useTaskFilters } from "../hooks/use-task-filters";
@@ -85,8 +85,10 @@ export const DataFilters = ({ hideProjectFilters }: DataFiltersProps) => {
         <SelectContent>
           <SelectItem value="all"> All assignees</SelectItem>
           <SelectSeparator />
-          {memberOptions?.map((member) => (
-            <SelectItem value={member.value}>{member.label}</SelectItem>
+          {memberOptions?.map((member, i) => (
+            <SelectItem key={i} value={member.value}>
+              {member.label}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -104,8 +106,10 @@ export const DataFilters = ({ hideProjectFilters }: DataFiltersProps) => {
         <SelectContent>
           <SelectItem value="all"> All projects</SelectItem>
           <SelectSeparator />
-          {projectOptions?.map((proj) => (
-            <SelectItem value={proj.value}>{proj.label}</SelectItem>
+          {projectOptions?.map((proj, i) => (
+            <SelectItem key={i} value={proj.value}>
+              {proj.label}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>

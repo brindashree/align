@@ -1,4 +1,5 @@
 import { Models } from "node-appwrite";
+import { Project } from "../projects/types";
 
 export enum TaskStatus {
   BACKLOG = "BACKLOG",
@@ -16,6 +17,6 @@ export type Task = Models.Row & {
   projectId: string;
   position: number;
   dueDate: string;
-  project: any;
+  project: Project;
   assignee: any;
 };
