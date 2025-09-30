@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@hono/zod-validator": "^0.7.2",
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -53,6 +54,7 @@
     "node-appwrite": "^19.0.0",
     "nuqs": "^2.6.0",
     "react": "^18",
+    "react-big-calendar": "^1.19.4",
     "react-day-picker": "^9.9.0",
     "react-dom": "^18",
     "react-hook-form": "^7.62.0",

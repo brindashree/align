@@ -6,7 +6,7 @@ import { getMember } from "@/features/members/utils";
 import { DATABASE_ID, MEMBERS_ID, PROJECTS_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskStatus } from "../types";
-import z, { email } from "zod";
+import z from "zod";
 import { createAdminClient } from "@/lib/appwrite";
 import { Project } from "@/features/projects/types";
 
@@ -149,7 +149,7 @@ const app = new Hono()
       databaseId: DATABASE_ID,
       rowId: taskId,
     });
-    console.log({ task });
+
     const currentMember = getMember({
       tablesDB,
       workspaceId: task.workspaceId,
@@ -292,6 +292,74 @@ const app = new Hono()
       });
 
       return c.json({ data: task });
+    }
+  )
+  .post(
+    "/bulk-update",
+    sessionMiddleware,
+    zValidator(
+      "json",
+      z.object({
+        tasks: z.array(
+          z.object({
+            $id: z.string(),
+            status: z.enum(TaskStatus),
+            position: z.number().int().positive().min(1000).max(1000000),
+          })
+        ),
+      })
+    ),
+    async (c) => {
+      const tablesDB = c.get("tablesdb");
+
+      const user = c.get("user");
+      const { tasks } = c.req.valid("json");
+      const tasksToUpdate = await tablesDB.listRows({
+        databaseId: DATABASE_ID,
+        tableId: TASKS_ID,
+        queries: [
+          Query.contains(
+            "$id",
+            tasks.map((task) => task.$id)
+          ),
+        ],
+      });
+
+      const workspaceIds = new Set(
+        tasksToUpdate.rows.map((task) => task.workspaceId)
+      );
+      if (workspaceIds.size !== 1) {
+        return c.json({
+          error: "All the task should belong to same workspace",
+        });
+      }
+
+      const workspaceId = Array.from(workspaceIds)[0];
+
+      const member = getMember({
+        tablesDB,
+        workspaceId,
+        userId: user.$id,
+      });
+      if (!member) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      const updatedTasks = await Promise.all(
+        tasks.map(async (task) => {
+          const { $id, position, status } = task;
+          return tablesDB.updateRow({
+            databaseId: DATABASE_ID,
+            tableId: TASKS_ID,
+            rowId: $id,
+            data: {
+              status,
+              position,
+            },
+          });
+        })
+      );
+      return c.json({ data: updatedTasks });
     }
   );
 export default app;

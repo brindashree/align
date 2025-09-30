@@ -3,7 +3,7 @@ import { DottedSeparator } from "@/components/dotted-separator";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader, PlusIcon } from "lucide-react";
-import React from "react";
+import React, { useCallback } from "react";
 import { useCreateTaskModal } from "../hooks/use-create-task-modal";
 import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
@@ -12,10 +12,14 @@ import { DataFilters } from "./data-filters";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { DataKanban } from "./data-kanban";
+import { TaskStatus } from "../types";
+import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 
 export const TaskViewSwitcher = () => {
   const workspaceId = useWorkspaceId();
   const { open } = useCreateTaskModal();
+  const { mutate } = useBulkUpdateTasks();
   const [{ status, assigneeId, projectId, dueDate }] = useTaskFilters();
   const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({
     workspaceId,
@@ -27,6 +31,14 @@ export const TaskViewSwitcher = () => {
   const [view, setView] = useQueryState("task-view", {
     defaultValue: "table",
   });
+
+  const onKanbanChange = useCallback(
+    (tasks: { $id: string; position: number; status: TaskStatus }[]) => {
+      mutate({ json: { tasks } });
+    },
+    []
+  );
+
   return (
     <Tabs
       className="flex-1 w-full border rounded-lg"
@@ -63,7 +75,9 @@ export const TaskViewSwitcher = () => {
             <TabsContent value="table">
               <DataTable columns={columns} data={tasks?.rows ?? []} />
             </TabsContent>
-            <TabsContent value="kanban">Data kanban</TabsContent>
+            <TabsContent value="kanban">
+              <DataKanban data={tasks?.rows ?? []} onChange={onKanbanChange} />
+            </TabsContent>
             <TabsContent value="calendar">Data calendar</TabsContent>
           </>
         )}

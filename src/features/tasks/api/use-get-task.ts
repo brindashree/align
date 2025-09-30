@@ -5,7 +5,6 @@ interface UseGetTaskProps {
   taskId: string;
 }
 export const useGetTask = ({ taskId }: UseGetTaskProps) => {
-  console.log({ taskId });
   const query = useQuery({
     queryKey: ["task", taskId],
     queryFn: async () => {
