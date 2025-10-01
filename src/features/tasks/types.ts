@@ -17,6 +17,6 @@ export type Task = Models.Row & {
   projectId: string;
   position: number;
   dueDate: string;
-  project: Project;
-  assignee: any;
+  description?: string;
+  [key: string]: any;
 };
