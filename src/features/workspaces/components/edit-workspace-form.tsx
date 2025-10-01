@@ -77,15 +77,7 @@ export const EditWorkspaceForm = ({
       ...values,
       image: values.image instanceof File ? values.image : "",
     };
-    mutate(
-      { form: finalValues, param: { workspaceId: initialValues?.$id } },
-      {
-        onSuccess: ({ data }) => {
-          form.reset();
-          router.push(`/workspaces/${data.$id}`);
-        },
-      }
-    );
+    mutate({ form: finalValues, param: { workspaceId: initialValues?.$id } });
   };
   const handleDelete = async () => {
     const ok = await confirmDelete();
@@ -110,18 +102,11 @@ export const EditWorkspaceForm = ({
     if (!ok) {
       return;
     }
-    resetInviteCode(
-      {
-        param: {
-          workspaceId: initialValues.$id,
-        },
+    resetInviteCode({
+      param: {
+        workspaceId: initialValues.$id,
       },
-      {
-        onSuccess: () => {
-          router.refresh();
-        },
-      }
-    );
+    });
   };
   const fullInvitelink = `${window.location.origin}/workspaces/${initialValues.$id}/join/${initialValues.inviteCode}`;
 

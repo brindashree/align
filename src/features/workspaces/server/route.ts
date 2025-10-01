@@ -45,6 +45,27 @@ const app = new Hono()
     });
     return c.json({ data: workspaces });
   })
+  .get("/:workspaceId", sessionMiddleware, async (c) => {
+    const tablesdb = c.get("tablesdb");
+    const user = c.get("user");
+    const { workspaceId } = c.req.param();
+    const members = await tablesdb.listRows({
+      databaseId: DATABASE_ID,
+      tableId: MEMBERS_ID,
+      queries: [Query.equal("userId", user?.$id)],
+    });
+
+    if (members.total === 0) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const workspace = await tablesdb.getRow<Workspace>({
+      databaseId: DATABASE_ID,
+      tableId: WORKSPACES_ID,
+      rowId: workspaceId,
+    });
+    return c.json({ data: workspace });
+  })
   .post(
     "/",
     zValidator("form", createWorkspacesSchema),

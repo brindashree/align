@@ -33,33 +33,6 @@ export const getWorkspaces = async () => {
   return workspaces;
 };
 
-interface GetWorkspaceProps {
-  workspaceId: string;
-}
-
-export const getWorkspace = async ({ workspaceId }: GetWorkspaceProps) => {
-  const { account, tablesDB } = await createSessionClient();
-  const user = await account.get();
-
-  const member = await getMember({
-    tablesDB: tablesDB,
-    workspaceId,
-    userId: user?.$id,
-  });
-
-  if (!member) {
-    throw new Error("Unauthorized");
-  }
-
-  const workspace = await tablesDB.getRow<Workspace>({
-    databaseId: DATABASE_ID,
-    tableId: WORKSPACES_ID,
-    rowId: workspaceId,
-  });
-
-  return workspace;
-};
-
 interface GetWorkspaceInfoProps {
   workspaceId: string;
 }

@@ -104,6 +104,32 @@ const app = new Hono()
       return c.json({ data: projects });
     }
   )
+  .get("/:projectId", sessionMiddleware, async (c) => {
+    const user = c.get("user");
+    const tablesDB = c.get("tablesdb");
+    const { projectId } = c.req.param();
+
+    const project = await tablesDB.getRow<Project>({
+      databaseId: DATABASE_ID,
+      tableId: PROJECTS_ID,
+      rowId: projectId,
+    });
+    const member = await getMember({
+      tablesDB,
+      workspaceId: project.workspaceId,
+      userId: user.$id,
+    });
+    if (!member) {
+      return c.json(
+        {
+          error: "Unauthorized",
+        },
+        401
+      );
+    }
+
+    return c.json({ data: project });
+  })
   .patch(
     "/:projectId",
     sessionMiddleware,

@@ -1,6 +1,6 @@
 import { Models } from "node-appwrite";
 
-export type Workspace = Models.DefaultRow & {
+export type Workspace = Models.Row & {
   name: string;
   image: string;
   inviteCode: string;
