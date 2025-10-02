@@ -8,7 +8,7 @@ import { Projects } from "./projects";
 
 const Sidebar = () => {
   return (
-    <aside className="h-full bg-neutral-100 p-4 w-full">
+    <aside className="h-full bg-muted p-4 w-full">
       <Link href="/" className="flex items-center gap-2 w-full cursor-pointer">
         <Image src="/logo.svg" alt="logo" width={48} height={48} />
         <span className="text-2xl font-semibold">Align</span>
