@@ -12,7 +12,7 @@ import Link from "next/link";
 import { useGetProjectAnalytics } from "@/features/projects/api/use-get-project-analytics";
 import { Analytics } from "@/components/analytics";
 
-export const ProjectIdClient = async () => {
+export const ProjectIdClient = () => {
   const projectId = useProjectId();
 
   const { data: project, isLoading: isLoadingProject } = useGetProject({

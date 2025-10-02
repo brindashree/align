@@ -7,7 +7,7 @@ import { Drawer, DrawerContent } from "./ui/drawer";
 interface ResponsiveModalProps {
   children: React.ReactNode;
   open: boolean;
-  onOpenChange: (open: boolean) => any;
+  onOpenChange: (open: boolean) => void;
 }
 
 const ResponsiveModal = ({

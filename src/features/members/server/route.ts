@@ -6,7 +6,7 @@ import z from "zod";
 import { getMember } from "../utils";
 import { DATABASE_ID, MEMBERS_ID } from "@/config";
 import { Query } from "node-appwrite";
-import { MemberRole } from "../types";
+import { Member, MemberRole } from "../types";
 
 const app = new Hono()
   .get(
@@ -28,7 +28,7 @@ const app = new Hono()
       if (!member) {
         return c.json({ error: "Unathorized" }, 401);
       }
-      const members = await tablesDB.listRows({
+      const members = await tablesDB.listRows<Member>({
         databaseId: DATABASE_ID,
         tableId: MEMBERS_ID,
         queries: [Query.equal("workspaceId", workspaceId)],

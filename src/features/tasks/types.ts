@@ -1,5 +1,4 @@
 import { Models } from "node-appwrite";
-import { Project } from "../projects/types";
 
 export enum TaskStatus {
   BACKLOG = "BACKLOG",
@@ -18,5 +17,6 @@ export type Task = Models.Row & {
   position: number;
   dueDate: string;
   description?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };

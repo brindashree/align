@@ -11,8 +11,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+// import { FcGoogle } from "react-icons/fc";
+// import { FaGithub } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,8 +24,8 @@ export const SignInCard = () => {
   const { mutate, isPending } = useLogin();
   const form = useForm<z.infer<typeof loginSchema>>({
     defaultValues: {
-      email: "",
-      password: "",
+      email: "john@gmail.com",
+      password: "123456789",
     },
     resolver: zodResolver(loginSchema),
   });
@@ -83,7 +83,7 @@ export const SignInCard = () => {
           </form>
         </Form>
       </CardContent>
-      <div className="px-7">
+      {/* <div className="px-7">
         <DottedSeparator />
       </div>
       <CardContent className="p-7 flex flex-col gap-y-4">
@@ -105,16 +105,22 @@ export const SignInCard = () => {
           <FaGithub className="mr-2 size-5" />
           Login with Github
         </Button>
-      </CardContent>
+      </CardContent> */}
+
       <div className="px-7">
         <DottedSeparator />
       </div>
+
       <CardContent className="p-7 items-center justify-center">
         <p>
           Don&apos;t have an account ?
           <Link href={"/sign-up"}>
             <span className="text-blue-700"> &nbsp;Sign Up </span>
           </Link>
+        </p>
+        <p className="text-xs text-muted-foreground font-medium p-2 mt-4 bg-muted">
+          NOTE: Use the demo account to quickly explore the project without
+          signing up.
         </p>
       </CardContent>
     </Card>
