@@ -60,7 +60,7 @@ export const Analytics = ({ data }: AnalyticsProps) => {
           <AnalyticsCard
             title="Overdue Tasks"
             value={data.overdueTaskCount}
-            variant={data.overdueTaskDifference > 0 ? "up" : "down"}
+            variant={data.overdueTaskDifference > 0 ? "down" : "up"}
             increaseValue={data.overdueTaskDifference}
           />
           <DottedSeparator direction="vertical" />
@@ -70,7 +70,7 @@ export const Analytics = ({ data }: AnalyticsProps) => {
           <AnalyticsCard
             title="Incomplete Tasks"
             value={data.incompleteTaskCount}
-            variant={data.incompleteTaskDifference > 0 ? "up" : "down"}
+            variant={data.incompleteTaskDifference > 0 ? "down" : "up"}
             increaseValue={data.incompleteTaskDifference}
           />
           <DottedSeparator direction="vertical" />

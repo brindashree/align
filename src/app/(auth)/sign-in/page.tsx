@@ -3,6 +3,8 @@ import { SignInCard } from "@/features/auth/components/sign-in-card";
 import { redirect } from "next/navigation";
 import React from "react";
 
+//export const dynamic = "force-dynamic";
+
 const SignIn = async () => {
   const user = await getCurrent();
   if (user) {
